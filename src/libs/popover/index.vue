@@ -25,7 +25,7 @@ const DELAY_TIME = 100
 const PROP_TOP_LEFT = 'top-left'
 const PROP_TOP_RIGHT = 'top-right'
 const PROP_BOTTOM_LEFT = 'bottom-left'
-const PROP_BOTTOM_RIGHT = 'botton-right'
+const PROP_BOTTOM_RIGHT = 'bottom-right'
 
 const placementEnum = [
   PROP_TOP_LEFT,
