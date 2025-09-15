@@ -3,6 +3,35 @@
     class="h-full overflow-auto bg-white dark:bg-zinc-800 duration-500 scrollbar-thin scrollbar-thumb-transparent xl:scrollbar-thumb-zinc-200 xl:dark:scrollbar-thumb-zinc-900 scrollbar-track-transparent"
     ref="containerTarget"
   >
+    <div
+      class="max-w-screen-xl mx-auto my-4 relative overflow-hidden h-48 rounded"
+    >
+      <div
+        class="flex transition-transform duration-500"
+        :style="{ transform: `translateX(-${currentIndex * 100}%)` }"
+      >
+        <div
+          v-for="(img, index) in carouselImages"
+          :key="index"
+          class="flex-shrink-0 w-full h-48"
+        >
+          <img v-lazy :src="img" class="w-full h-full object-cover rounded" />
+        </div>
+      </div>
+
+      <button
+        class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white px-2 py-1 rounded"
+        @click="prev"
+      >
+        ‹
+      </button>
+      <button
+        class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white px-2 py-1 rounded"
+        @click="next"
+      >
+        ›
+      </button>
+    </div>
     <navigation-vue></navigation-vue>
     <div class="max-w-screen-xl mx-auto relative m-1 xl:mt-4">
       <list-vue></list-vue>
@@ -50,8 +79,9 @@ import navigationVue from './components/navigation/index.vue'
 import listVue from './components/list/index.vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { useScroll } from '@vueuse/core'
-import { onActivated, ref } from 'vue'
+import { useScroll, useIntersectionObserver } from '@vueuse/core'
+import { getThemes } from '@/api/pexels'
+import { onActivated, ref, onMounted, watch } from 'vue'
 
 const store = useStore()
 const router = useRouter()
@@ -88,5 +118,39 @@ onActivated(() => {
     return
   }
   containerTarget.value.scrollTop = containerTargetScrollY.value
+})
+
+// 轮播图部分
+const carouselImages = ref([])
+const currentIndex = ref(0)
+const isCarouselLoading = ref(true)
+
+const next = () => {
+  if (carouselImages.value.length === 0) return
+  currentIndex.value = (currentIndex.value + 1) % carouselImages.value.length
+}
+const prev = () => {
+  if (carouselImages.value.length === 0) return
+  currentIndex.value =
+    (currentIndex.value - 1 + carouselImages.value.length) %
+    carouselImages.value.length
+}
+
+watch(
+  () => store.getters.currentCategory,
+  (newCategory) => {
+    store.dispatch('pexels/resetQuery', { categoryId: newCategory.id })
+  }
+)
+
+onMounted(async () => {
+  await Promise.all([
+    (async () => {
+      const { themes } = await getThemes()
+      carouselImages.value = themes.map((t) => t.photo)
+    })(),
+    store.dispatch('category/useCategoryData')
+  ])
+  store.dispatch('pexels/fetchList', true)
 })
 </script>

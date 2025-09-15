@@ -1,5 +1,5 @@
 <template>
-  <div class="">
+  <div class="" ref="container">
     <div class="text-xs mb-1 text-zinc-400">热门精选</div>
     <div class="flex h-[140px]" v-if="themeData.list.length">
       <div
@@ -46,7 +46,8 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useIntersectionObserver } from '@vueuse/core'
 import { getThemes } from '@/api/pexels'
 import { randomRGB } from '@/utils/color'
 
@@ -62,7 +63,23 @@ const getThemeData = async () => {
     list: themes.splice(1, themes.length)
   }
 }
-getThemeData()
+
+// requestIdleCallback(() => {
+//   getThemeData()
+// })
+
+// getThemeData()
+
+const container = ref(null)
+useIntersectionObserver(
+  container,
+  ([{ isIntersecting }]) => {
+    if (isIntersecting) {
+      getThemeData()
+    }
+  },
+  { threshold: 0.1 }
+)
 </script>
 
 <style lang="scss" scoped></style>

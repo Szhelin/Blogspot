@@ -15,12 +15,8 @@ export const getVipPayList = () => {
 export const getAliPay = (subject, totalAmount, body, isMobile) => {
   return request({
     url: '/user/alipay',
-    params: {
-      subject,
-      totalAmount,
-      body,
-      isMobile
-    }
+    params: { subject, totalAmount, body, isMobile },
+    retries: 3 // 超时/500 错误时最多重试 3 次
   })
 }
 

@@ -26,11 +26,15 @@
   </div>
 </template>
 <script setup>
-import hintVue from './hint.vue'
-import { ref } from 'vue'
+// import hintVue from './hint.vue'
+import { ref, defineAsyncComponent } from 'vue'
 import { useStore } from 'vuex'
-import historyVue from './history.vue'
-import themeVue from './theme.vue'
+// import historyVue from './history.vue'
+// import themeVue from './theme.vue'
+
+const hintVue = defineAsyncComponent(() => import('./hint.vue'))
+const historyVue = defineAsyncComponent(() => import('./history.vue'))
+const themeVue = defineAsyncComponent(() => import('./theme.vue'))
 
 const store = useStore()
 const inputValue = ref('')

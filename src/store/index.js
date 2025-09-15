@@ -5,6 +5,7 @@ import theme from './modules/theme'
 import app from './modules/app'
 import search from './modules/search'
 import user from './modules/user'
+import pexels from './modules/pexels'
 import createPersistedState from 'vuex-persistedstate'
 
 const store = createStore({
@@ -14,7 +15,8 @@ const store = createStore({
     theme,
     app,
     search,
-    user
+    user,
+    pexels
   },
   plugins: [
     createPersistedState({

@@ -19,6 +19,46 @@
 <body>
   <div id="app"></div>
   <script type="module" src="/src/main.js"></script>
+
+  <!-- 请求监控插件 -->
+  <script>
+    (function () {
+      let counter = 0
+      const oldFetch = window.fetch
+      window.fetch = function (...args) {
+        counter++
+        const id = counter
+        console.log(`请求 #${id}: [fetch]`, args[0], args[1] || {})
+        return oldFetch.apply(this, args).then(res => {
+          console.log(`响应 #${id}: [fetch]`, res)
+          return res
+        }).catch(err => {
+          console.error(`错误 #${id}: [fetch]`, err)
+          throw err
+        })
+      }
+
+      const oldOpen = XMLHttpRequest.prototype.open
+      const oldSend = XMLHttpRequest.prototype.send
+      XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+        this._reqInfo = { method, url }
+        return oldOpen.apply(this, [method, url, ...rest])
+      }
+      XMLHttpRequest.prototype.send = function (...args) {
+        counter++
+        const id = counter
+        const { method, url } = this._reqInfo
+        console.log(`请求 #${id}: [XHR] ${method} ${url}`)
+        this.addEventListener('load', () => {
+          console.log(`响应 #${id}: [XHR] ${method} ${url}`, this.status, this.response)
+        })
+        this.addEventListener('error', () => {
+          console.error(`错误 #${id}: [XHR] ${method} ${url}`)
+        })
+        return oldSend.apply(this, args)
+      }
+    })();
+  </script>
 </body>
 
 </html>
